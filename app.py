@@ -41,40 +41,30 @@ def main():
     return (
         f"Avaiable Routes: <br/>"
         f"/api/v1.0/precipitation<br/>"
-        f"/api/v1.0/stations"
-        f"/api/v1.0/tobs"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs<br/>"
         f"/api/v1.0/<start><br/>"
         f"/api/v1.0<start>/<end>"
     )
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
+    print("Recieved request for Precipitation API.")
+    last_date_query = session.query(func.max(func.strftime("%Y-%m-%d", measurement.date))).all()
+    last_date_string = last_date_query[0][0]
+    last_date = dt.datetime.strptime(last_date_string, "%Y-%m-%d")
 
+    first_date = last_date - dt.timedelta(365)
 
+    prcp_data = session.query(func.strftime("%Y-%m-%d", measurement.date), measurement.prcp).\
+        filter(func.strftime("%Y-%m-%d", measurement.date) >= first_date).all()
 
+    results_dict = {}
+    for result in prcp_data:
+        results_dict[result[0]] = result [1]
 
-@app.route("/api/v1.0/stations")
-def stations():
-
-
-
-@app.route("/api/v1.0/tobs")
-def tobs():
-
-
-
-
-@app.route("/api/v1.0/<start>")
-def start(start)
-
-
-
-
-@app.route("/api/v1.0/<start>/<end>")
-def start_end (start, end): 
-
-
-
+    return jsonify(results_dict)
+    
 
 if __name__ == "__main__":
     app.run(debug = True)
